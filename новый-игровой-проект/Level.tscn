@@ -2,6 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://d0cysempxw26a" path="res://Без названия.jpg" id="1_t7iv1"]
 [ext_resource type="PackedScene" uid="uid://csvnxwbpljvax" path="res://player.tscn" id="2_2nifc"]
+[ext_resource type="PackedScene" uid="uid://cxayo3ixm3nm8" path="res://enemy.tscn" id="3_2nifc"]
 
 [node name="Node2D" type="Node2D" unique_id=933885109]
 
@@ -26,3 +27,6 @@ texture = ExtResource("1_t7iv1")
 stretch_mode = 1
 
 [node name="Player" parent="." unique_id=476897045 instance=ExtResource("2_2nifc")]
+
+[node name="Enemy" parent="." unique_id=1532222049 instance=ExtResource("3_2nifc")]
+position = Vector2(261, 0)

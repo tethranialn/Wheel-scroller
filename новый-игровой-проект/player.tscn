@@ -23,9 +23,9 @@ script = ExtResource("1_onrkg")
 
 [node name="SpeedLabel" type="Label" parent="." unique_id=1565872246]
 offset_left = -566.0
-offset_top = 283.0
+offset_top = -283.0
 offset_right = -495.0
-offset_bottom = 317.0
+offset_bottom = -249.0
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 24
 text = "Speed"
@@ -38,3 +38,21 @@ sprite_frames = SubResource("SpriteFrames_q4iis")
 shape = SubResource("CircleShape2D_wkftn")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1127352686]
+
+[node name="HealthLabel" type="Label" parent="." unique_id=478217945]
+offset_left = -566.0
+offset_top = 283.0
+offset_right = -489.0
+offset_bottom = 317.0
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 24
+text = "Health"
+
+[node name="CoordinatesLabel" type="Label" parent="." unique_id=1051927929]
+offset_left = -566.0
+offset_top = -316.0
+offset_right = -495.0
+offset_bottom = -282.0
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 24
+text = "Cords"

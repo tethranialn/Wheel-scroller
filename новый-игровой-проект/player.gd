@@ -12,6 +12,17 @@ extends CharacterBody2D
 @export var dash_threshold: float = 600.0
 @export var dash_color: Color = Color.RED
 
+@export var max_health: float = 100.0
+var current_health: float = 100.0
+
+@export var invincibility_duration: float = 2.0
+var is_invincible: bool = false
+var invincibility_timer: float = 0.0
+
+@export var blink_speed: float = 0.1
+var blink_timer: float = 0.0
+var original_modulate: Color = Color.WHITE
+
 var target_velocity: Vector2 = Vector2.ZERO
 var wheel_timer: float = 0.0
 var boost_active: bool = false
@@ -19,6 +30,12 @@ var dash: bool = false
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var speed_label: Label = $"SpeedLabel"
+@onready var health_label: Label = $"HealthLabel"
+@onready var coordinates_label: Label = $"CoordinatesLabel"
+
+func _ready() -> void:
+	update_health_display()
+	original_modulate = animated_sprite.modulate
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
@@ -38,6 +55,8 @@ func _physics_process(delta: float) -> void:
 	var mouse_pos := get_global_mouse_position()
 	var look_direction := (mouse_pos - global_position).normalized()
 	animated_sprite.rotation = look_direction.angle() - deg_to_rad(90)
+	
+	update_invincibility(delta)
 	
 	if wheel_timer > 0.0:
 		var accel: float
@@ -76,25 +95,69 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	
 	var current_speed := velocity.length()
-	var current_accel: float
-	if wheel_timer > 0.0:
-		if target_velocity.length_squared() < 0.1:
-			current_accel = brake_strength
-		elif velocity.dot(target_velocity) < 0.0 and velocity.length() > 10.0:
-			current_accel = brake_strength
-		else:
-			current_accel = acceleration
-			if boost_active:
-				current_accel *= opposite_brake_multiplier
-			elif target_velocity.length() < scroll_speed * reverse_speed_ratio * 1.1:
-				current_accel *= reverse_accel_ratio
-	else:
-		current_accel = friction
-
 	speed_label.text = "Speed: %.1f" % current_speed
+	coordinates_label.text = "X: %.0f Y: %.0f" % [global_position.x, global_position.y]
 	
 	dash = current_speed >= dash_threshold
 	if dash:
 		animated_sprite.modulate = dash_color
+	elif not is_invincible:
+		animated_sprite.modulate = original_modulate
+
+func take_damage(amount: float) -> void:
+	if is_invincible:
+		return
+	
+	if current_health <= 0:
+		return
+	
+	current_health -= amount
+	if current_health <= 0:
+		current_health = 0
+		die()
 	else:
-		animated_sprite.modulate = Color.WHITE
+		start_invincibility()
+	
+	update_health_display()
+
+func heal(amount: float) -> void:
+	current_health += amount
+	if current_health > max_health:
+		current_health = max_health
+	update_health_display()
+
+func update_health_display() -> void:
+	if health_label:
+		health_label.text = "HP: %.0f / %.0f" % [current_health, max_health]
+
+func die() -> void:
+	print("Player died!")
+	set_process(false)
+	set_physics_process(false)
+
+func is_alive() -> bool:
+	return current_health > 0
+
+func start_invincibility() -> void:
+	is_invincible = true
+	invincibility_timer = invincibility_duration
+	blink_timer = 0.0
+
+func update_invincibility(delta: float) -> void:
+	if not is_invincible:
+		return
+	
+	invincibility_timer -= delta
+	
+	if invincibility_timer <= 0.0:
+		is_invincible = false
+		animated_sprite.modulate = original_modulate
+		return
+	
+	blink_timer += delta
+	if blink_timer >= blink_speed:
+		blink_timer = 0.0
+		if animated_sprite.modulate == original_modulate:
+			animated_sprite.modulate = Color.TRANSPARENT
+		else:
+			animated_sprite.modulate = original_modulate
